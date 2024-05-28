@@ -159,6 +159,9 @@ const UpdateSidePanelNote = async function(note_page: NotePageType) {
         local_notes.push(note_page);
 
     Browser.storage.local.set({notes: local_notes}); 
+
+    let fetch_url = Combine_API(API.VSX_UpdateBlock);
+    ExecFetch(fetch_url, HttpMethod.PUT, note_page);
 }
 
 const DeleteSidePanelNote = async function(note_id: string) {
@@ -169,6 +172,9 @@ const DeleteSidePanelNote = async function(note_id: string) {
         local_notes.splice(index, 1);
 
     Browser.storage.local.set({notes: local_notes}); 
+
+    let fetch_url = Combine_API(API.VSX_DeleteBlock);
+    HttpRequest(fetch_url, HttpMethod.DELETE, {id: note_id});
 }
 
 const OpenTabURL = function(url: string) {
