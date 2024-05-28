@@ -1,5 +1,3 @@
-'use client'
-
 import { EventID } from "@src/utility/static_data";
 import EventSystem from "@src/utility/EventSystem";
 import { Vector2 } from "@src/utility/VectorMath";

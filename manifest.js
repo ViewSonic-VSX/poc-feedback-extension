@@ -6,7 +6,7 @@ import packageJson from './package.json' assert { type: 'json' };
  */
 const manifest = {
   manifest_version: 3,
-  name: "VAIUE - Draft in Sidebar",
+  name: "VSX Extension - Helper in sidebar",
   version: packageJson.version,
   description: packageJson.description,
   key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvybZj0roZMxoxcTwC4zcqkZdEO8M1XXzBAgwnDPU2QZOdd2rfmATPPQ+5LBC8MDVxnMro0QZFITqEkL6jPp6/texefzwK1g6b+WXqRIyskx9kYLu88bp6YQcagIoPyajTXmWbgNnIoeDQr59oUVsOdjJ7ZM/p++5bEESA7f2g7WX6wVn669kmQ5TJhd1Bc2juY7RN1Sii4EA1lc1rmktbaa4Pp/WABKX2spGldxFIPprEB9q3+vtNyPK9x9Yrb7vMhtliJEvfz+kMtsI1iRzpeqkiq6xQEV7jUHOvVApZltyC0bSmyQDmjD0lL7nL3bmN7KynTDLxSMwTmrNdBn/4wIDAQAB",

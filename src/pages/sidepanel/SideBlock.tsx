@@ -61,6 +61,10 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
 
+    console.log('Note full page');
+    console.log(noteFullPage);
+
+
     sideBlockHelper.set_callback(append_block_action, update_block_action, delete_block_action);
     sideBlockHelper.set_parameter(noteFullPage, storage);
     storage.save_note_to_background(noteFullPage);

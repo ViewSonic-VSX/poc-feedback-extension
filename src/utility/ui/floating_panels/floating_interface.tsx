@@ -153,8 +153,8 @@ export class RenderSelectActionBar extends AbstractMovable {
 }
 
 export const MovePanelToPos = function(target: HTMLBaseElement, bound: DOMRect, x: number, y: number) {
-    let body_width = document.body.clientWidth;
-    let body_height = document.body.clientHeight;
+    let body_width = window.innerWidth;
+    let body_height = window.innerHeight;
 
     //No stick into right wall
     let offset_x = (x + bound.width) - body_width;

@@ -1,6 +1,7 @@
 import {Combine_Path} from './static_utility';
 
 export const SUBJECT_LAW_LEARNING = "SUBJECT_LAW_LEARNING";
+export const TEST_USER_EMAIL = "hsinpa@gmail.com";
 
 export const CoockieTable = Object.freeze({
     Procedural_Language_Code : "procedural_language_code",
@@ -53,10 +54,18 @@ export const API = Object.freeze({
 
     Translation: "https://yuri-api.sytes.net/libretranslate/translate",
     Translation_Memory: 'https://api.mymemory.translated.net/get?q={source}&langpair={lang}',
+
+    // Viewsonic
+    VSX_GetNoteList: 'get_note_list/?user_id={0}&page_index={1}',
+    VSX_GetNote: 'get_extension_draft_note/?note_id=={0}',
+
+    VSX_InsertBlock: 'insert_extension_draft_note',
+    VSX_UpdateBlock: 'update_extension_draft_note',
+    VSX_DeleteBlock: 'delete_extension_draft_note',
 });
 
 export const Domain = Object.freeze({
-    Dev : "http://localhost:8032/",
+    Dev : "http://localhost:8080/api/v1/poc_extension/",
     Prod : "https://yuri-api.sytes.net/vaiue/",
 });
 
@@ -69,6 +78,9 @@ export const MessageSender = Object.freeze({
 export const MessageID = Object.freeze({
     ContentPaste : 1,
     ContentCreate : 2,
+
+    VSXQuizGenerate_DataCopy : 5,
+
 
     NoteUpdate: 20,
     NoteEnter: 21,
@@ -91,6 +103,11 @@ export const DBAction = Object.freeze({
     Insert: 1,
     Update : 2,
     Delete: 3
+});
+
+export const GeneralAction = Object.freeze({
+    Offer: 0,
+    Answer: 1,
 });
 
 export const Color = Object.freeze({
@@ -127,4 +144,23 @@ export const HighlightConfigTable = Object.freeze({
         "pointer_enter": Color.DarkOrange,
         "pointer_leave": Color.ShallowOrange,
     }
+});
+
+export enum HttpMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE"
+}
+
+export const ChirpAIQuizDataKey = Object.freeze({
+    standard: 'data-standard',
+    grade: 'data-grade',
+    bloom_level: 'data-bloom-level',
+    quiz_type: 'data-quiz-type',
+    image_url: 'data-image-url',
+    subject: 'data-subject',
+    topics: 'data-topics',
+    country: 'data-country',
+    key_stage: 'data-key-stage'
 });

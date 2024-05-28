@@ -1,5 +1,5 @@
 import { UserSSO_Struct } from "./data_structure";
-import { Domain } from "./static_data";
+import { Domain, HttpMethod } from "./static_data";
 
   export function Combine_Path(path: string) {
     return "/" + path;
@@ -83,4 +83,19 @@ export function GetLocalStorageValue(key: string, default_val: string): string{
   if (v == null) return default_val;
 
   return v;
-} 
+}
+
+export function HttpRequest(url: string, method: HttpMethod, data?: any) {
+
+  let config: RequestInit = {
+    method: method
+  }
+
+  if (data != null) {
+    config.headers ={"Content-Type": "application/json"};
+    config.body = JSON.stringify(data);
+  }
+
+  return fetch(url, config);
+
+}

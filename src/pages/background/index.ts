@@ -1,9 +1,12 @@
 import { ExtensionMessageStruct } from '@root/src/utility/data_structure';
 import { GetEmptyNotePage, NoteBlockType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
-import { MessageSender, MessageID, StorageID, DBAction } from '@root/src/utility/static_data';
+import { MessageSender, MessageID, StorageID, DBAction, GeneralAction, API, HttpMethod, TEST_USER_EMAIL } from '@root/src/utility/static_data';
 import reloadOnUpdate from 'virtual:reload-on-update-in-background-script';
 import Browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
+import { action } from 'webextension-polyfill';
+import { Combine_API, HttpRequest } from '@root/src/utility/static_utility';
+import { ChirpAIHttpData } from '@root/src/utility/static_data_type';
 
 reloadOnUpdate('pages/background');
 
@@ -28,10 +31,10 @@ Browser.runtime.onMessage.addListener(
             let message : ExtensionMessageStruct = request;
             //console.log(message);
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentPaste) 
-                OnPasteContentMessage(message.body, message.source);
+                OnPasteContentMessage(message.body, message.source, sender.tab.id);
 
             if (message.sender == MessageSender.Tab && message.id == MessageID.ContentCreate) 
-                OnCreateContentMessage(message.body, message.source);
+                OnCreateContentMessage(message.body, message.source, sender.tab.id);
 
             if (message.sender == MessageSender.SidePanel && message.id == MessageID.NoteUpdate) 
                 OnSidePanelNoteMessage(message.body);
@@ -51,7 +54,7 @@ Browser.runtime.onMessage.addListener(
 const CreateNewNotePage = function(content: string, note_size: number) {
     const s_block = GetSingleBlock(content);
     let note : NotePageType = GetEmptyNotePage();
-    note._id = uuidv4();
+    note._id = uuidv4().replaceAll('-', '').slice(0,24);
     note.blocks = [s_block];
 
     note.title = "Draft #"+ (note_size + 1);
@@ -60,9 +63,13 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     return note;
 }
 
-const OnPasteContentMessage = async function(contents: NoteRowType[], source: string) {
+const OnPasteContentMessage = async function(contents: any, source: string, tab_id?: number) {
+    let nodes_row = contents['nodes'];
+    let quiz_type = contents['chirpai_quiz_type'];
 
-    console.log("OnPasteContentMessage", contents)
+    console.log("OnPasteContentMessage", nodes_row)
+    console.log("paste quiz_type", quiz_type)
+
     let last_visit_note = await GetLastVisitedNotes();
     let local_record = await GetLocalNotes();
 
@@ -77,28 +84,40 @@ const OnPasteContentMessage = async function(contents: NoteRowType[], source: st
     let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
 
     if (local_record.length <= 0) {
-        OnCreateContentMessage(contents, source);
+        OnCreateContentMessage(nodes_row, source, tab_id);
         return;
     } else {
         const s_block = GetSingleBlock("");
-        s_block.row = contents;
+        s_block.row = nodes_row;
         s_block.source = source;
+        s_block.chirp_ai_quiz_type = quiz_type;
         local_record[last_block_index].blocks.push(s_block);
 
         message.action = DBAction.Insert;
         message.body = {id: local_record[last_block_index]._id, block: s_block};
     }
 
+    // if (tab_id != null)
+    //     Browser.tabs.sendMessage(tab_id, { sender: MessageSender.Background, id: MessageID.VSXQuizGenerate_DataCopy, action: GeneralAction.Offer});
+
     Browser.runtime.sendMessage(message);
+
     Browser.storage.local.set({notes: local_record});
 }
 
-const OnCreateContentMessage = async function(contents: NoteRowType[], source: string) {
+const OnCreateContentMessage = async function(contents: any, source: string, tab_id?: number) {
+    let nodes_row = contents['nodes'];
+    let quiz_type = contents['chirpai_quiz_type'];
+
+    console.log("OnCreateContentMessage", nodes_row)
+    console.log("create quiz_type", quiz_type)
+
     let local_record = await GetLocalNotes();
 
     let note : NotePageType = CreateNewNotePage("", local_record.length);
-        note.blocks[0].row = contents;
+        note.blocks[0].row = nodes_row;
         note.blocks[0].source = source;
+        note.blocks[0].chirp_ai_quiz_type = quiz_type;
         local_record.push(note);
 
     let message : ExtensionMessageStruct = { 
@@ -110,6 +129,9 @@ const OnCreateContentMessage = async function(contents: NoteRowType[], source: s
 
     Browser.runtime.sendMessage(message);
     Browser.storage.local.set({notes: local_record});
+
+    let fetch_url = Combine_API(API.VSX_InsertBlock);
+    await ExecFetch(fetch_url, HttpMethod.POST, note);
 }
 //#endregion
 
@@ -179,7 +201,7 @@ const GetLocalNotes = async function() {
 
 const GetSingleBlock = function(content: string) {
     let block : NoteBlockType = {
-        _id: uuidv4(),
+        _id: uuidv4().replaceAll('-', '').slice(0,24),
         version: 0,
         row: [GetSingleRow(content)]
     }
@@ -199,3 +221,19 @@ const GetSingleRow = function(content: string) {
 }
 
 //#endregions
+
+//#region HTTP
+const ExecFetch = function(url: string, method: HttpMethod, data?: any) {
+    if (method == HttpMethod.GET) {
+        return HttpRequest(url, method);
+    }
+
+    const email_account: string = TEST_USER_EMAIL;
+    const http_data: ChirpAIHttpData = {
+        email: email_account,
+        data: data
+    }
+
+    return HttpRequest(url, method, http_data);
+}
+//#endregion

@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import { P } from 'vitest/dist/reporters-OH1c16Kq';
+import { ChirpAIQuizType } from './static_data_type';
 
 export const GetEmptyNotePage = function() {
     let new_block : NotePageType = {
@@ -37,6 +38,7 @@ export type NoteBlockType = {
     row : NoteRowType[],
     version: number,
     source?: string,
+    chirp_ai_quiz_type?: ChirpAIQuizType
 }
 
 export type NoteSource = {
