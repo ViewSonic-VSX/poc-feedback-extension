@@ -29,3 +29,21 @@
     }
 
 }
+
+.login_modal {
+    .error {
+        color: red;
+    }
+    .modal-content {
+        h2 {
+            color: white;
+            font-size: 1.2em;
+            padding-bottom: 0.25em;
+        }
+        padding: 0em 4em;
+
+        button {
+            font-size: 1.2em;
+        }
+    }
+}

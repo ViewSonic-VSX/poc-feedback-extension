@@ -10,7 +10,7 @@ import { Domain, HttpMethod } from "./static_data";
   }
 
   export function Is_Email(email : string) {
-    let regex = /^[a-z0-9]+@[a-z]+\.[a-z]{2,3}$/;
+    let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     let result = regex.test(email);
 
     return result;

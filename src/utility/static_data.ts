@@ -92,6 +92,7 @@ export const StorageID = Object.freeze({
     UserInfo : "user_info",
     Notes : "notes",
     LastVisitNote : "last_visit_note",
+    Email : "email",
 
     TranslationSource : "translation_source",
     TranslationTarget : "translation_target"

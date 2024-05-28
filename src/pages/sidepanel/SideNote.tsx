@@ -10,6 +10,8 @@ import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import {v4 as uuidv4} from 'uuid';
 import { useState } from 'react';
 import StorageModel from './storge_model';
+import { LoginModal } from './account/LoginModal';
+import { useUserInfoStore } from './user_zustand';
 
 
 const SidePanel = ({storage} : {storage: StorageModel}) => {
@@ -21,9 +23,16 @@ const SidePanel = ({storage} : {storage: StorageModel}) => {
     picture: "",
     email: "",
   }
+  const account_email = useUserInfoStore((state) => state.email);
+  const open_email_modal = useUserInfoStore((state) => state.open_email_modal);
+
+  useEffect(() => {
+      open_email_modal(account_email == null || account_email == '');
+  }, [account_email]);
 
   return (
-    <div className="tool-note-page">      
+    <div className="tool-note-page">
+      <LoginModal storage={storage}></LoginModal>
       <NoteHeaderComp userStruct={static_user} storage={storage}></NoteHeaderComp>
       <NoteBodyComp userStruct={static_user} storage={storage}></NoteBodyComp>
     </div>
@@ -32,10 +41,13 @@ const SidePanel = ({storage} : {storage: StorageModel}) => {
 
 const NoteHeaderComp = function({userStruct, storage}: {userStruct: UserSSO_Struct, storage: StorageModel}) {
   const dispatch_note_page_array = useNoteDictStore((state) => state.set_array);
+  const open_email_modal = useUserInfoStore((state) => state.open_email_modal);
 
   const notes = useNoteDictStore((state) => state.notes_array);
   const set_note_dict = useNoteDictStore((state) => state.set);
   const note_focus_set = useNoteFocusStore((state) => state.set_id);
+
+
 
   function create_new_note() {      
           let new_block : NotePageType = GetEmptyNotePage();
@@ -51,7 +63,11 @@ const NoteHeaderComp = function({userStruct, storage}: {userStruct: UserSSO_Stru
   return (
       <div className="note-header-comp">
         <div className='note-header-control-panel'>
-        <Link to='account'><img src={logo_svg}></img></Link>
+        {/* <Link to='account'><img src={logo_svg}></img></Link> */}
+
+        <img onClick={() => {
+          open_email_modal(true);
+        }} src={logo_svg}></img>
         <h2>Drafts</h2>
           {/* <input className="input" type='text' placeholder="Search..."></input> */}
           <section className="note-header-actions">

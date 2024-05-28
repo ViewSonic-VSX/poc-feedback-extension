@@ -229,12 +229,18 @@ const GetSingleRow = function(content: string) {
 //#endregions
 
 //#region HTTP
-const ExecFetch = function(url: string, method: HttpMethod, data?: any) {
+const ExecFetch = async function(url: string, method: HttpMethod, data?: any) {
     if (method == HttpMethod.GET) {
         return HttpRequest(url, method);
     }
 
-    const email_account: string = TEST_USER_EMAIL;
+    let email_account: string = TEST_USER_EMAIL;
+    let email_dict = await Browser.storage.local.get(StorageID.Email);
+    
+    if (StorageID.Email in email_dict) {
+        email_account = (email_dict[StorageID.Email])
+    }
+
     const http_data: ChirpAIHttpData = {
         email: email_account,
         data: data

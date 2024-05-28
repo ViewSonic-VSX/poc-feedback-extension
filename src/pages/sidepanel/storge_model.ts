@@ -19,6 +19,7 @@ export default class StorageModel {
     async initiate() {
         let record = await Browser.storage.local.get(StorageID.Notes);
         let user_info = await Browser.storage.local.get(StorageID.UserInfo);
+        let email = await Browser.storage.local.get(StorageID.Email);
 
         if (StorageID.Notes in record) {
             this.set_notes(record[StorageID.Notes]);
@@ -28,6 +29,12 @@ export default class StorageModel {
             console.log("User Info");
             console.log(user_info[StorageID.UserInfo]);
             this.set_user_info(user_info[StorageID.UserInfo])
+        }
+
+        if (StorageID.Email in email) {
+            console.log("Email");
+            console.log(email[StorageID.Email]);
+            this.set_email(email[StorageID.Email])
         }
     }
 
@@ -103,5 +110,14 @@ export default class StorageModel {
             Browser.storage.local.remove(StorageID.UserInfo)
         else
             Browser.storage.local.set({user_info: user_info});
+    }
+
+    set_email(email: string) {
+        useUserInfoStore.setState(() => ({email: email}) );
+        
+        if (email == null)
+            Browser.storage.local.remove(StorageID.Email)
+        else
+            Browser.storage.local.set({email: email});
     }
 }
