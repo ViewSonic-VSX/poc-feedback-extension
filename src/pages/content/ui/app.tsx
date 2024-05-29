@@ -122,6 +122,7 @@ const SendTextToBackground = function(action_id: number, nodes: NoteRowType[], c
     host: window.location.host, source: window.location.href
   };
 
+  console.log('SendTextToBackground', messageStruct)
   Browser.runtime.sendMessage(messageStruct);
 
   let text = nodes.find(x=>x.type == 'paragraph')?.children[0].text;

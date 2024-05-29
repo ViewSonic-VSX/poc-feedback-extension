@@ -84,7 +84,7 @@ const OnPasteContentMessage = async function(contents: any, source: string, tab_
     let message : ExtensionMessageStruct = { sender: MessageSender.Background, id: MessageID.ContentPaste };
 
     if (local_record.length <= 0) {
-        OnCreateContentMessage(nodes_row, source, tab_id);
+        OnCreateContentMessage(contents, source, tab_id);
         return;
     } else {
         const s_block = GetSingleBlock("");
@@ -96,6 +96,8 @@ const OnPasteContentMessage = async function(contents: any, source: string, tab_
         message.action = DBAction.Insert;
         message.body = {id: local_record[last_block_index]._id, block: s_block};
     }
+
+    console.log();
 
     // if (tab_id != null)
     //     Browser.tabs.sendMessage(tab_id, { sender: MessageSender.Background, id: MessageID.VSXQuizGenerate_DataCopy, action: GeneralAction.Offer});
@@ -246,6 +248,11 @@ const ExecFetch = async function(url: string, method: HttpMethod, data?: any) {
         data: data
     }
 
-    return HttpRequest(url, method, http_data);
+    try {
+        return HttpRequest(url, method, http_data);
+    } catch {
+        console.error(url + ' failed to fetch');
+    }
+
 }
 //#endregion
