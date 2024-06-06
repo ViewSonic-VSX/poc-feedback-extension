@@ -6,7 +6,7 @@ import { Domain, HttpMethod } from "./static_data";
   }
 
   export function Combine_API(path: string) {
-    return Domain.Dev + path;
+    return Domain.Prod + path;
   }
 
   export function Is_Email(email : string) {
@@ -42,6 +42,15 @@ export function FormatString(string: string, params: any[]) {
     return typeof params[index] !== 'undefined' ? params[index] : match;
   });
 }
+
+export function truncateString(str:string, limit: number = 20) {
+  const maxLength = limit;
+  if (str.length > maxLength) {
+      return str.substring(0, maxLength);
+  }
+  return str;
+}
+
 
 export function decodeJwtResponseFromGoogleAPI(token: string) : UserSSO_Struct {
   let base64Url = token.split('.')[1]

@@ -6,6 +6,7 @@ import setting_svg from '@assets/img/settings_applications.svg';
 
 import React, { Fragment, useCallback, useMemo } from 'react'
 import { action } from 'webextension-polyfill';
+import { HighlightKeyTable } from '../static_data';
 
 export type SelectionFunction = (block_index: number, range: BaseRange, selected_descendents: Descendant[], whole_descendents: Descendant[]) => NoteRowType[];
 export type SelectionActionsCallback = () => SelectionCallbackType;
@@ -28,6 +29,8 @@ export default function RenderSlateContent({index, id, editor, version, placehol
 
     let _cacheRange: BaseRange;
     let render_addon_btn = function() {      
+      if (id == HighlightKeyTable.INPUT_EDITOR) return <Fragment></Fragment>;
+      
       return <button className='note-block-btn' onClick={() => action_bar_event(id)}><img src={setting_svg}></img></button>;
     }
     
@@ -65,6 +68,14 @@ export default function RenderSlateContent({index, id, editor, version, placehol
       onFocusCapture={() => {
         focus_event(id, index, true, editor)
       }}
+
+      onKeyDown={
+        (e) => {
+          if (e.key == "Enter" && id == HighlightKeyTable.INPUT_EDITOR) {
+            finish_edit_event(id, index, editor.children);
+          }
+        }
+      }
 
       onSelect={() => {
         // console.log("OnSelect Done");

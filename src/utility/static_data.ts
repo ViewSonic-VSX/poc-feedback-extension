@@ -66,7 +66,7 @@ export const API = Object.freeze({
 
 export const Domain = Object.freeze({
     Dev : "http://localhost:8080/api/v1/poc_extension/",
-    Prod : "https://yuri-api.sytes.net/vaiue/",
+    Prod : "http://digital-twin-balancer-2054458603.ap-southeast-1.elb.amazonaws.com/api/v1/poc_extension/",
 });
 
 export const MessageSender = Object.freeze({
@@ -131,6 +131,7 @@ export const HighlightKeyTable = Object.freeze({
 
     KEYWORD: "keyword",
     VALIDATION: "validation",
+    INPUT_EDITOR:'c_input_editor'
 });
 
 

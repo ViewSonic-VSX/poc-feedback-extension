@@ -66,7 +66,7 @@ export const BlockSlateContent = memo(function({ note_block, version, index, foc
                 finish_edit_event={on_slate_title_change} 
                 action_bar_event={on_action_bar_click}
                 selection_bar_event={on_selection_bar_event}
-                placeholder_text="Text from gpt"></RenderSlateContent>
+                placeholder_text=""></RenderSlateContent>
          
                 <div className='keyword_container'>
                     {keyword_dom}

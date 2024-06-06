@@ -91,10 +91,19 @@ export class SideBlockHelper {
         });
     }
 
-    add_new_row() {
+    add_new_block(row: any[]) {
         if (this.notePage == null) return;
     
         let new_block = GetEmptyNoteBlock();
+        new_block.row = row;
+
+        this.insert_dict_action(this.notePage._id, new_block);
+    }
+
+    add_new_row(content: string = '') {
+        if (this.notePage == null) return;
+    
+        let new_block = GetEmptyNoteBlock(content);
         new_block._id = uuidv4();
 
         this.insert_dict_action(this.notePage._id, new_block);

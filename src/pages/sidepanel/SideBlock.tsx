@@ -5,25 +5,29 @@ import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 import { FloatActionBarState, HighlightActionBarState, UserSSO_Struct } from '@src/utility/data_structure';
 import { useEffect } from 'react';
 import { GetEmptyNoteBlock, NoteBlockType, NoteCommentsType, NoteKeywordType, NotePageType, NoteParagraphType, NoteRowType } from '@root/src/utility/note_data_struct';
-import { useNoteDictStore } from './note_zustand';
+import { useNoteDictStore, useNoteFocusStore } from './note_zustand';
 import { MouseHelper } from '@root/src/utility/ui/mouse_helper';
 import { RenderSideActionBar, RenderSourcePanel, RenderSelectActionBar,  ShowFloatingBoard } from '@root/src/utility/ui/floating_panels/floating_interface';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import StorageModel from './storge_model';
 import { SideBlockHelper } from './SideBlockHelper';
-import { Editor } from 'slate';
+import { BaseEditor, Editor, createEditor } from 'slate';
 import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 import { translate, upload_texture } from './block_elements/side_api';
 import { BlockSlateContents } from './block_elements/SideBlockListView';
 import { SideBlockTitleBar } from './block_elements/SideBlockTitleBar';
-import { SelectionActionsCallback, SelectionCallbackType } from '@root/src/utility/slate_editor/slate_note_content';
+import RenderSlateContent, { SelectionActionsCallback, SelectionCallbackType, withImages } from '@root/src/utility/slate_editor/slate_note_content';
 import { LoadingScreenView, render_loading_screen } from './block_elements/loading_screen';
 import { useState } from 'react';
 import { RenderTrnaslationActionBar } from '@root/src/utility/ui/floating_panels/translation_panel';
 import { RenderCommentBar } from '@root/src/utility/ui/floating_panels/comment_panel';
 import EventSystem from '@root/src/utility/EventSystem';
-import { NoteUIEventID } from '@root/src/utility/static_data';
+import { HighlightKeyTable, NoteUIEventID } from '@root/src/utility/static_data';
 import { useCommentStore } from '@root/src/utility/ui/floating_panels/comment_zustand';
+import { BlockSlateContent } from './block_elements/SideBlockView';
+import { HistoryEditor, withHistory } from 'slate-history';
+import { ReactEditor, withReact } from 'slate-react';
+import { useMemo } from 'react';
 
 let floatActionbar = new RenderSideActionBar()
 let floatSourcePanel = new RenderSourcePanel()
@@ -42,6 +46,7 @@ let focus_state: FocusState | null = null;
 
 const SideBlock = ({storage} : {storage: StorageModel}) => {
     let { page_id } = useParams();
+    let current_node_id  = useNoteFocusStore((state) => state.note_id);
     const navigate = useNavigate();
     const get_block_action = useNoteDictStore((state) => state.get_block);
 
@@ -58,17 +63,14 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
     const remove_note_action = useNoteDictStore((state) => state.remove);
     const [loadVisibility, setLoadVisibility] = useState(false)
 
+    const edit_box_editor = useMemo(() => withImages(withHistory(withReact(createEditor()))), []);
+    let [editor_version, set_editor_version] = useState(0);
     let notes_dict = useNoteDictStore((state) => state.notes_dict);
     let noteFullPage = notes_dict[page_id];
-
-    console.log('Note full page');
-    console.log(noteFullPage);
-
 
     sideBlockHelper.set_callback(append_block_action, update_block_action, delete_block_action);
     sideBlockHelper.set_parameter(noteFullPage, storage);
     storage.save_note_to_background(noteFullPage);
-
 
     // //OnDestroy
     useEffect(() => {
@@ -100,6 +102,12 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
             mouse_helper.dispose();
         };
     }, []);
+
+    useEffect(() => {
+        console.log(current_node_id)
+        if (page_id != current_node_id)
+            navigate("/note/" + current_node_id);
+    }, [current_node_id]);
 
 //#region UI Event
     const on_slate_title_change = function(id: string, index: number, value: any[]) {
@@ -350,6 +358,15 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         }
     }
 
+    const on_add_new_block = function() {
+        let clone_editor_children = [...edit_box_editor.children];
+        sideBlockHelper.add_new_block(clone_editor_children);
+
+        // Clear content
+        edit_box_editor.children = [{type: "paragraph", children: [{text: ''}]}]
+        edit_box_editor.deselect();
+    }
+
     const on_ui_event = function(id: string, data?: any) {
         switch(id) {
             case NoteUIEventID.CommentClose:{
@@ -393,10 +410,14 @@ const SideBlock = ({storage} : {storage: StorageModel}) => {
         }
     }
 //#endregion
+let new_block = GetEmptyNoteBlock();
 
 return (
     <div className="preview-comp">
-        <Link className='button' to="/">Back</Link>
+        <div className='note_component_footer'>
+            <Link className='button' to="/">Back</Link>
+            <button className='button is-danger is-light' onClick={on_note_delete}>x</button>
+        </div>
 
         <SideBlockTitleBar on_title_change={on_title_change}>
             {noteFullPage.title}
@@ -412,9 +433,20 @@ return (
             on_ui_event={on_ui_event}
              />
 
+            <div className="note-block-comp">
+                <RenderSlateContent id={HighlightKeyTable.INPUT_EDITOR} default_data={[{type: "paragraph", children: [{text: ''}]}]} editor={edit_box_editor}
+                index={0} version={editor_version} key={HighlightKeyTable.INPUT_EDITOR}
+                readOnly={false} 
+                focus_event={(id: string, index: number, is_focus: boolean, editor: Editor) => {console.log('focus_event ' + id);}}
+                finish_edit_event={(id: string, index: number, value: any[]) => { if (SlateUtility.concat_node_row_string(value).length > 0) on_add_new_block();}} 
+                action_bar_event={(id: string) => {console.log('action_bar_event ' + id);}}
+                selection_bar_event={(selection_callback: SelectionActionsCallback) => {console.log('selection_callback ');}}
+                placeholder_text="Enter your comment here . . ."></RenderSlateContent>
+            </div>
+
+
         <div className='note_component_footer'>
-            <button className="button is-primary is-light" onClick={() => sideBlockHelper.add_new_row()}>Add+</button>
-            <button className='button is-danger is-light' onClick={on_note_delete}>x</button>
+            <button className="button is-primary is-light" onClick={() => on_add_new_block()}>Add+</button>
         </div>
 
         <div className='floating-container'>

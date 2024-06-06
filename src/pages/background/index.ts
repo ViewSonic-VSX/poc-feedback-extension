@@ -5,8 +5,9 @@ import reloadOnUpdate from 'virtual:reload-on-update-in-background-script';
 import Browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 import { action } from 'webextension-polyfill';
-import { Combine_API, HttpRequest } from '@root/src/utility/static_utility';
+import { Combine_API, HttpRequest, truncateString } from '@root/src/utility/static_utility';
 import { ChirpAIHttpData } from '@root/src/utility/static_data_type';
+import { SlateUtility } from '@root/src/utility/slate_editor/slate_utility';
 
 reloadOnUpdate('pages/background');
 
@@ -55,9 +56,9 @@ const CreateNewNotePage = function(content: string, note_size: number) {
     const s_block = GetSingleBlock(content);
     let note : NotePageType = GetEmptyNotePage();
     note._id = uuidv4().replaceAll('-', '').slice(0,24);
-    note.blocks = [s_block];
 
-    note.title = "Draft #"+ (note_size + 1);
+    note.blocks = [s_block];
+    note.title = "# " + content;
     note.date = new Date().toDateString();
 
     return note;
@@ -116,7 +117,8 @@ const OnCreateContentMessage = async function(contents: any, source: string, tab
 
     let local_record = await GetLocalNotes();
 
-    let note : NotePageType = CreateNewNotePage("", local_record.length);
+    let text = truncateString( SlateUtility.concat_node_row_string(nodes_row), 30);
+    let note : NotePageType = CreateNewNotePage(text, local_record.length);
         note.blocks[0].row = nodes_row;
         note.blocks[0].source = source;
         note.blocks[0].chirp_ai_quiz_type = quiz_type;

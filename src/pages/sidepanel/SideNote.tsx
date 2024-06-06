@@ -52,7 +52,7 @@ const NoteHeaderComp = function({userStruct, storage}: {userStruct: UserSSO_Stru
   function create_new_note() {      
           let new_block : NotePageType = GetEmptyNotePage();
           new_block._id = uuidv4();
-          new_block.title = "Draft #" + (notes.length + 1);
+          new_block.title = "#" + (notes.length + 1) + new_block.blocks[0].row[0].children[0].text;
           new_block.date = new Date().toDateString();
           new_block.blocks[0]._id = uuidv4();
 
@@ -118,8 +118,8 @@ const NoteBodyComp = function({userStruct, storage}: {userStruct: UserSSO_Struct
                   } }>
                   
                   <section>
-                  <h3>{note_title}</h3>
                   <p>{note_block.date}</p>
+                  <h3>{note_title}</h3>
                   </section>
                   {/* <object data={Combine_Path("texture/platform/expand.svg")} > </object> */}
                   </Link> )

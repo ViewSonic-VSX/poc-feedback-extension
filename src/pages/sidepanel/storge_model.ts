@@ -6,6 +6,7 @@ import { useUserInfoStore } from "./user_zustand";
 import { NoteBlockType, NotePageType } from "@root/src/utility/note_data_struct";
 import { ExtensionMessageStruct } from "@root/src/utility/data_structure";
 import { UserInfo } from "@root/src/utility/static_data_type";
+import { redirect } from "react-router-dom";
 
 export default class StorageModel {
     private _storage_change_event: any;
@@ -59,8 +60,11 @@ export default class StorageModel {
         
         if (message.sender != MessageSender.Background) return;
 
-        if (message.id == MessageID.ContentPaste && message.action == DBAction.Create)
+        if (message.id == MessageID.ContentPaste && message.action == DBAction.Create){
             this.set_notes(message.body);
+
+            useNoteFocusStore.setState({note_id: message.body[message.body.length - 1]?._id});
+        }
 
         if (message.id == MessageID.ContentPaste && message.action == DBAction.Insert)
             this.content_page_insert_note(message.body.id, message.body.block);
@@ -105,6 +109,7 @@ export default class StorageModel {
 
     set_user_info(user_info: UserInfo | null) {
         useUserInfoStore.setState(() => ({user_info: user_info}) );
+        
         
         if (user_info == null)
             Browser.storage.local.remove(StorageID.UserInfo)

@@ -119,7 +119,7 @@ export class RenderHighlightBar extends AbstractMovable {
         return(
             <div id={this.id}>
                 <button onClick={() => this._create_new_callback?.()}>Create</button>
-                <button onClick={() => this._insert_to_last_collection_callback?.()}>Paste</button>
+                {/* <button onClick={() => this._insert_to_last_collection_callback?.()}>Paste</button> */}
             </div>
         )
     }
